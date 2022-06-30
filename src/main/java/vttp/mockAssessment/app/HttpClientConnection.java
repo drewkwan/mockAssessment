@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import javax.swing.text.html.HTML;
-
 public class HttpClientConnection implements Runnable {
     private Socket sock;
     private String docRoot;
@@ -83,6 +81,7 @@ public class HttpClientConnection implements Runnable {
                     System.out.println("Client connection closed!");
                     br.close();
                     os.close();
+                    return;
                 }
                 //Action 2,3 and 4
                 String[] paths = this.docRoot.split(":");
@@ -97,6 +96,7 @@ public class HttpClientConnection implements Runnable {
                     //String html="";
                     System.out.println("File name is: >>> " + fileName);
                     if (fileName.exists()) {
+                        checkResource = true;
                         //Action 4
                         if (resourceFile.contains(".png")) {
                             System.out.println("HTTP/1.1 200 OK");
@@ -110,8 +110,10 @@ public class HttpClientConnection implements Runnable {
                             os.write("\r\n\r\n".getBytes());
                             os.flush();
                             System.out.println("Client connection closed!");
+                            ips.close();
                             br.close();
                             os.close();
+                            return;
                         }
                         //Action 3
                         else {
@@ -124,14 +126,15 @@ public class HttpClientConnection implements Runnable {
                             os.write("\r\n\r\n".getBytes());
                             os.flush();
                             System.out.println("Client connection closed!");
+                            ips.close();
                             br.close();
                             os.close();
-                   
+                            return;
                         }
-                        checkResource = true;
-                        break;
+
                     }
-                    
+
+            
                 } 
                 //action 2
                 if (!checkResource) {
@@ -146,6 +149,7 @@ public class HttpClientConnection implements Runnable {
                     System.out.println("Client connection closed!");
                     br.close();
                     os.close();
+                    return;
                 }
 
                 //We close connection but never exit thread. Come back to this.
