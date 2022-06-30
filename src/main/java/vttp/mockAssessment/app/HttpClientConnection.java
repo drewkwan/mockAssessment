@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+
+import javax.swing.text.html.HTML;
 
 public class HttpClientConnection implements Runnable {
     private Socket sock;
@@ -81,7 +84,7 @@ public class HttpClientConnection implements Runnable {
                     br.close();
                     os.close();
                 }
-                //Action 2
+                //Action 2,3 and 4
                 String[] paths = this.docRoot.split(":");
                 String trimmedResource = resourceFile.replace("/", ""); 
                 if (trimmedResource == "") {
@@ -91,12 +94,46 @@ public class HttpClientConnection implements Runnable {
                 for (String p : paths) {
                     String resourcePath = p + File.separator + trimmedResource;
                     File fileName = new File(resourcePath);
+                    //String html="";
                     System.out.println("File name is: >>> " + fileName);
                     if (fileName.exists()) {
+                        //Action 4
+                        if (resourceFile.contains(".png")) {
+                            System.out.println("HTTP/1.1 200 OK");
+                            InputStream ips = new FileInputStream(fileName);
+                            OutputStream os = sock.getOutputStream();
+                            os.write("HTTP/1.1 200 OK\r\n\r\n".getBytes()); 
+                            os.write("\r\n".getBytes());
+                            os.write("Content-Type: image/png\r\n".getBytes());
+                            os.write("\r\n".getBytes());
+                            os.write(ips.readAllBytes()); //the html has to be href or it won't work
+                            os.write("\r\n\r\n".getBytes());
+                            os.flush();
+                            System.out.println("Client connection closed!");
+                            br.close();
+                            os.close();
+                        }
+                        //Action 3
+                        else {
+                            System.out.println("HTTP/1.1 200 OK");
+                            InputStream ips = new FileInputStream(fileName);
+                            OutputStream os = sock.getOutputStream();
+                            os.write("HTTP/1.1 200 OK\r\n\r\n".getBytes()); 
+                            os.write("\r\n".getBytes());
+                            os.write(ips.readAllBytes()); //the html has to be href or it won't work
+                            os.write("\r\n\r\n".getBytes());
+                            os.flush();
+                            System.out.println("Client connection closed!");
+                            br.close();
+                            os.close();
+                   
+                        }
                         checkResource = true;
                         break;
                     }
+                    
                 } 
+                //action 2
                 if (!checkResource) {
                     System.out.println("HTTP/1.1 404 Not Allowed");
                     OutputStream os = sock.getOutputStream(); //what your server is sending back to the client
